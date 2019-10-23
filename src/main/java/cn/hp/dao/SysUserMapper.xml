@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hp.dao.SysUserMapper">
+	<select id="findSysUserByUsername" parameterType="String"
+		resultType="sysUser">
+		select * from sys_user where username=#{username}
+	</select>
+	<select id="findUser" resultType="sysUser">
+		select * from sys_user
+	</select>
+	<select id="isUnique" parameterType="string"
+		resultType="sysUser">
+		select * from sys_user where username=#{isUnique}
+	</select>
+	<select id="addUser" parameterType="sysUser">
+		insert into
+		sys_user(username,password,email,phoneNum,status)
+		values(#{username},#{password},#{email},#{phoneNum},#{status})
+	</select>
+	<select id="detailUser" parameterType="int" resultType="sysUser">
+		select *
+		from sys_user where id=#{id}
+	</select>
+	<!-- 角色表和权限表的值 -->
+	<resultMap type="sysRole" id="roleAndPs">
+		<id column="id" property="id" />
+		<result column="roleName" property="roleName" />
+		<result column="roleDesc" property="roleDesc" />
+		<collection property="permissions" javaType="permission">
+			<id column="id1" property="id" />
+			<result column="permissionName" property="permissionName" />
+			<result column="url" property="url" />
+			<result column="pid" property="pid" />
+		</collection>
+	</resultMap>
+	<select id="findRolAndPermission" parameterType="int"
+		resultMap="roleAndPs">
+		select r.*,p.* from sys_user_role ur,sys_role
+		r,sys_role_permission rp,sys_permission p where ur.roleId=r.id and
+		r.id=rp.roleId and rp.permissionId=p.id and ur.userId=#{id}
+	</select>
+
+	<select id="findUserRole" parameterType="int"
+		resultType="sysRole">
+		select r.* from sys_user_role ur,sys_role r where ur.roleId=r.id and
+		userId=#{userId}
+	</select>
+	<!-- 删除旧的角色关系 -->
+	<delete id="deleteRole" parameterType="int">
+		delete from sys_user_role where userId=#{userId}
+	</delete>
+	<!-- 维护新的关系 -->
+	<insert id="insertUserRole" parameterType="map">
+		insert into sys_user_role(userId,roleId) values(#{userId},#{roleId})
+	</insert>
+	<!-- 用户角色信息 -->
+	<resultMap type="sysRole" id="roleMap">
+		<id column="id" property="id" />
+			<id column="rid" property="id" />
+			<result column="roleName" property="roleName" />
+			<result column="roleDesc" property="roleDesc" />
+		<collection property="sysUsers" javaType="sysUser">
+			<result column="username" property="username" />
+			<result column="password" property="password" />
+			<result column="email" property="email" />
+			<result column="phoneNum" property="phoneNum" />
+			<result column="status" property="status" />
+		</collection>
+	</resultMap>
+	<!-- 动态查询用户角色信息 -->
+	<select id="queryUserRole" parameterType="string"
+		resultMap="roleMap">
+		select u.*,r.roleName,r.roleDesc,r.id 'rid' from sys_user u left join
+		sys_user_role ur on u.id=ur.userId left join sys_role r on
+		r.id=ur.roleId where u.id=ur.userId and u.username=#{username}
+	</select>
+</mapper>

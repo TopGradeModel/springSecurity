@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="cn.hp.dao.RoleMapper">
+  <select id="findRole" resultType="sysRole">
+		select * from sys_role 
+  </select>
+  <insert id="saveRole" parameterType="sysRole">
+  	insert into sys_role(roleName,roleDesc) values(#{roleName},#{roleDesc})
+  </insert>
+  <!-- 查询用户拥有的权限 -->
+  <select id="findRolePermission" parameterType="int" resultType="sysRole">
+  	select p.* from sys_role_permission rp,sys_permission p where rp.permissionId=p.id
+  </select>
+  <!-- 删除旧的关系 -->
+  <delete id="deleteRolePermission" parameterType="int">
+  	delete from sys_role_permission where roleId=#{roleId}
+  </delete>
+  <!-- 维护新的角色权限 -->
+  <insert id="insertRolePermission" parameterType="map">
+  insert into sys_role_permission(roleId,permissionId) values(#{roleId},#{permissionId})
+  </insert>
+  </mapper>

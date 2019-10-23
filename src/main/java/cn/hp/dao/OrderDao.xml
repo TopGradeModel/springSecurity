@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="cn.hp.dao.OrderDao">
+  
+  <resultMap type="order" id="oneOrder">
+  <id column="id" property="id"/>
+  <result column="orderNum" property="orderNum"/>
+  <result column="orderTime" property="orderTime"/>
+  <result column="peopleCount" property="peopleCount"/>
+  <result column="orderDesc" property="orderDesc"/>
+  <result column="payType" property="payType"/>
+  <result column="orderStatus" property="orderStatus"/>
+  <association property="product" javaType="product">
+  <id column="id1" property="id"/>
+  <result column="productName" property="productName"/>
+  </association>
+  </resultMap>
+  
+  <select id="findAll" resultMap="oneOrder">
+  select o.*,p.* from orders o,product p where o.productId=p.id
+  </select>
+  
+  <insert id="save" parameterType="order">
+  insert into orders(orderNum,orderTime,peopleCount,orderDesc,payType,orderStatus,productId)
+  values(#{orderNum},#{orderTime},#{peopleCount},#{orderDesc},#{payType},#{orderStatus},#{product.id})
+  </insert>
+  <delete id="delete" parameterType="int">
+  delete from orders where id=#{id}
+  </delete>
+  <resultMap type="order" id="orderById">
+  <id column="id" property="id"></id>
+  <result column="orderNum" property="orderNum"/>
+  <result column="orderTime" property="orderTime"/>
+  <result column="peopleCount" property="peopleCount"/>
+  <result column="orderDesc" property="orderDesc"/>
+  <result column="payType" property="payType"/>
+  <result column="orderStatus" property="orderStatus"/>
+  <association property="product" javaType="product">
+  <id column="id" property="id"/>
+  <result column="productName" property="productName"/>
+  </association>
+  </resultMap>
+  <select id="findById" parameterType="int" resultMap="orderById">
+  select * from orders where id=#{id}
+  </select>
+  <update id="update" parameterType="order">
+  update order set orderNum=#{orderNum},orderTime=#{orderTime},peopleCount=#{peopleCount},orderDesc=#{orderDesc},payType=#{payType},orderStatus=#{orderStatus},product=#{order.product.productName},
+  where id=#{id}
+  </update>
+  </mapper>
